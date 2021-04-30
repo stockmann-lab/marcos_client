@@ -255,7 +255,7 @@ def cl2bin(changelist, changelist_grad,
 
     # Track removed instruction events, but only warn when the number exceeds a minimum
     removed_instruction_warnings = []
-    max_removed_instructions = 10
+    max_removed_instructions = 10000 # High to remove unnecessary warnings
 
     # Process and combine the change list into discrete sets of operations at each time, i.e. an output list
     def cl2ol(changelist):
