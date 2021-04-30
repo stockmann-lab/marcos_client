@@ -286,6 +286,25 @@ def turbo_spin_echo(plot_rx=False, init_gpa=False,
         plt.plot( rxd['rx1'].imag )
         plt.show()
 
+    return rxd['rx0']
+
+def spin_echo_train(larmor_freq=15.45, rf_scaling=.35, echo_count=8, rx_period=25/3, echo_duration=5000, readout_duration=2500):
+    return turbo_spin_echo(
+        lo_freq=larmor_freq,
+        trs=1, echos_per_tr=echo_count,
+        rf_amp=rf_scaling,
+        rx_period=rx_period,
+        echo_duration=echo_duration,
+        readout_duration=readout_duration,
+        readout_amp=0,
+        readout_grad_duration=500,
+        phase_start_amp=0,
+        phase_grad_duration=150,
+        phase_grad_interval=600,
+        slice_start_amp=0,
+        tr_pause_duration=50000,
+        init_gpa=True, plot_rx=False)
+
 def radial(trs=36, plot_rx=False, init_gpa=False):
     ## All times are relative to a single TR, starting at time 0
     lo_freq = 0.2 # MHz
