@@ -289,13 +289,15 @@ def turbo_spin_echo(plot_rx=False, init_gpa=False,
     return rxd['rx0']
 
 def spin_echo_train(larmor_freq=15.45, rf_scaling=.35, echo_count=8, rx_period=25/3,
-                     echo_duration=5000, readout_duration=2500, trs=1, tr_pause_duration=50000):
+                     echo_duration=5000, readout_duration=2500, trs=1, tr_pause_duration=50000,
+                     rf_pi2_duration=50):
     return turbo_spin_echo(
         lo_freq=larmor_freq,
         trs=trs, echos_per_tr=echo_count,
         rf_amp=rf_scaling,
         rx_period=rx_period,
         echo_duration=echo_duration,
+        rf_pi2_duration=rf_pi2_duration,
         readout_duration=readout_duration,
         readout_amp=0,
         readout_grad_duration=500,
