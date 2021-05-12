@@ -318,8 +318,8 @@ class ModelTest(unittest.TestCase):
         """Basic state change on a single buffer, with many more specified
         events than actual changes, leading to removed instructions and a
         series of warnings. Dict version"""
-        reps = 100
-        d = {'tx0_i': ( np.arange(100, 100 + reps) , np.array([10000]*100) )}
+        reps = 2000
+        d = {'tx0_i': ( np.arange(100, 100 + reps) , np.array([10000]*reps) )}
         with self.assertWarns( fc.FloRemovedInstructionWarning,
                                msg="expected flocompile warning not observed") as cmu:
             refl, siml = compare_dict(d, "test_single", self.s, self.p)
@@ -499,6 +499,24 @@ class ModelTest(unittest.TestCase):
         set_grad_board("ocra1")
         expt_args = {'rx_t': 0.5, 'set_cic_shift': True}
         refl, siml = compare_expt_dict({}, "test_cic_shift_expt", self.s, self.p, **expt_args)
+        restore_grad_board()
+        self.assertEqual(refl, siml)
+
+    def test_init_grad_expt_fhd(self):
+        """ Test whether GPA-FHDO gradient events happening at time = 0 cause errors -- they should not if there's a sufficient initial wait"""
+        set_grad_board("gpa-fhdo")
+        expt_args={'rx_t': 0.5, 'grad_max_update_rate': 0.1} # deliberately slow update rate
+        d = {'grad_vx': (np.array([0, 5]), np.array([0.5, 0]))}
+        refl, siml = compare_expt_dict(d, "test_init_grad_expt_fhd", self.s, self.p, **expt_args)
+        restore_grad_board()
+        self.assertEqual(refl, siml)
+
+    def test_init_grad_expt_oc1(self):
+        """ Test whether OCRA1 gradient events happening at time = 0 cause errors -- they should not if there's a sufficient initial wait."""
+        set_grad_board("ocra1")
+        expt_args={'rx_t': 0.5, 'grad_max_update_rate': 0.1} # deliberately slow update rate
+        d = {'grad_vx': (np.array([0, 20]), np.array([0.5, 0])) }
+        refl, siml = compare_expt_dict(d, "test_init_grad_expt_oc1", self.s, self.p, **expt_args)
         restore_grad_board()
         self.assertEqual(refl, siml)
 

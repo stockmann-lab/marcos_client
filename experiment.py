@@ -64,11 +64,12 @@ class Experiment:
                  print_infos=True, # show server info messages
                  assert_errors=True, # halt on errors
                  init_gpa=False, # initialise the GPA (will reset its outputs when the Experiment object is created)
-                 initial_wait=1, # initial pause before experiment begins - required to configure the LOs and RX rate; must be at least 1us
+                 initial_wait=None, # initial pause before experiment begins - required to configure the LOs and RX rate; must be at least a few us. Is suitably set based on grad_max_update_rate by default.
                  prev_socket=None, # previously-opened socket, if want to maintain status etc
                  fix_cic_scale=True, # scale the RX data precisely based on the rate being used; otherwise a 2x variation possible in data amplitude based on rate
                  set_cic_shift=False, # program the CIC internal bit shift to maintain the gain within a factor of 2 independent of rate; required if the open-source CIC is used in the design
-                 flush_rx=False # when debugging or developing new code, you may accidentally fill up the RX FIFOs - they will not automatically be cleared in case there is important data inside. Setting this true will always clear them before running a sequence.
+                 halt_and_reset=False, # upon connecting to the server, halt any existing sequences that may be running
+                 flush_old_rx=False, # when debugging or developing new code, you may accidentally fill up the RX FIFOs - they will not automatically be cleared in case there is important data inside. Setting this true will always read them out and clear them before running a sequence. More advanced manual code can read RX from existing sequences.
                  ):
 
         # create socket early so that destructor works
@@ -98,8 +99,6 @@ class Experiment:
             rx_lo = rx_lo, rx_lo # extend to 2 elements
         self._rx_lo = rx_lo
 
-        self._initial_wait = initial_wait
-
         assert grad_board in ('ocra1', 'gpa-fhdo'), "Unknown gradient board!"
         if grad_board == 'ocra1':
             gradb_class = gb.OCRA1
@@ -108,6 +107,10 @@ class Experiment:
             gradb_class = gb.GPAFHDO
             self._gpa_fhdo_offset_time = gpa_fhdo_offset_time
         self.gradb = gradb_class(self.server_command, grad_max_update_rate)
+
+        if initial_wait is None:
+            # auto-set the initial wait to be long enough for initial gradient configuration to finish, plus 1us for miscellaneous startup
+            self._initial_wait = 1 + 1/grad_max_update_rate
 
         assert (seq_csv is None) or (seq_dict is None), "Cannot supply both a sequence dictionary and a CSV file."
         self._csv = None
@@ -123,9 +126,13 @@ class Experiment:
         if init_gpa:
             self.gradb.init_hw()
 
+        if halt_and_reset:
+            halted = sc.command({'halt_and_reset': 0}, self._s)[0][4]['halt_and_reset']
+            assert halted, "Could not halt the execution of an existing sequence. Please file a bug report."
+
         self._fix_cic_scale = fix_cic_scale
         self._set_cic_shift = set_cic_shift
-        self._flush_rx = flush_rx
+        self._flush_old_rx = flush_old_rx
 
     def __del__(self):
         self._s.close()
@@ -207,7 +214,7 @@ class Experiment:
                     assert np.all( (0 <= vb) & (vb <= 1) ), "Binary columns must be [0,1] or [False, True] valued"
             elif key in ['leds']:
                 keybin = key,
-                valbin = vals.astype(np.uint8), # 8-bit value
+                valbin = vals.astype(np.int32),
             else:
                 warnings.warn("Unknown flocra experiment dictionary key: " + key)
                 continue
@@ -298,8 +305,9 @@ class Experiment:
         if self._seq_compiled is False:
             self.compile()
 
-        if self._flush_rx:
-            sc.command({'flush_rx': 0}, self._s)
+        if self._flush_old_rx:
+            rx_data_old, _ = sc.command({'read_rx': 0}, self._s)
+            # TODO: do something with RX data previously collected by the server
 
         rx_data, msgs = sc.command({'run_seq': self._machine_code.tobytes()}, self._s)
 
@@ -331,7 +339,7 @@ class Experiment:
 
 def test_rx_scaling(lo_freq=0.5, rf_amp=0.5, rf_steps=True, rx_time=50, rx_periods=[600], rx_padding=20, plot_rx=False):
 
-    expt = Experiment(lo_freq=lo_freq, rx_t=rx_periods[0] / fpga_clk_freq_MHz, fix_cic_scale=False, set_cic_shift=False, flush_rx=True)
+    expt = Experiment(lo_freq=lo_freq, rx_t=rx_periods[0] / fpga_clk_freq_MHz, fix_cic_scale=False, set_cic_shift=False, flush_old_rx=True)
     tr_t = 0
     tr_period = rx_time + rx_padding
     rx_lengths = []
