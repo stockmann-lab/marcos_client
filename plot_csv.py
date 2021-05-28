@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys, pdb
-from local_config import fpga_clk_freq_MHz
+from marcos_client.local_config import fpga_clk_freq_MHz
 st = pdb.set_trace
 
 if __name__ == "__main__":

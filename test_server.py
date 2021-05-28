@@ -11,8 +11,8 @@ import warnings
 import pdb
 st = pdb.set_trace
 
-from local_config import ip_address, port, fpga_clk_freq_MHz, grad_board
-from server_comms import *
+from marcos_client.local_config import ip_address, port, fpga_clk_freq_MHz, grad_board
+from marcos_client.server_comms import *
 
 class ServerTest(unittest.TestCase):
 

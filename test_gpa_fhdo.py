@@ -6,8 +6,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pdb
-import experiment as ex
-from pulseq_assembler import PSAssembler
+import marcos_client.experiment as ex
+from marcos_client.pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 import msgpack, warnings
 
-from flomachine import FloServerWarning
+from marcos_client.flomachine import FloServerWarning
 
 version_major = 1
 version_minor = 0

@@ -38,7 +38,7 @@ import numpy as np
 from numpy.polynomial import Polynomial
 import time, warnings
 import matplotlib.pyplot as plt
-import local_config as lc
+import marcos_client.local_config as lc
 
 import pdb
 st = pdb.set_trace

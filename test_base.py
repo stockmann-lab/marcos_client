@@ -6,10 +6,10 @@ import sys, os, subprocess, warnings, socket, unittest, time
 import numpy as np
 import matplotlib.pyplot as plt
 
-import server_comms as sc
+import marcos_client.server_comms as sc
 
-import flocompile as fc
-import experiment as exp
+import marcos_client.flocompile as fc
+import marcos_client.experiment as exp
 
 import pdb
 st = pdb.set_trace

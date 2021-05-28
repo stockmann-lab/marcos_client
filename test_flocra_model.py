@@ -10,7 +10,7 @@
 # To run a single test, use e.g.:
 # python -m unittest test_flocra_model.Modeltest.test_many_quick
 
-from test_base import *
+from marcos_client.test_base import *
 
 class ModelTest(unittest.TestCase):
     """Main test class for general HDL and compiler development/debugging;

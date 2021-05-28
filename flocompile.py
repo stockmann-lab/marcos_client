@@ -3,9 +3,9 @@
 
 import numpy as np
 import warnings
-from flomachine import *
+from marcos_client.flomachine import *
 try:
-    from local_config import grad_board
+    from marcos_client.local_config import grad_board
 except ModuleNotFoundError:
     grad_board = "gpa-fhdo"
 

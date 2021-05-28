@@ -5,7 +5,7 @@
 #
 
 import numpy as np
-import experiment as exp
+import marcos_client.experiment as exp
 
 class Flocritek:
     """Provides a simple API to interact with the Experiment class, with

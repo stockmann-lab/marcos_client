@@ -6,11 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import socket, time
-from local_config import ip_address, port, grad_board, fpga_clk_freq_MHz
-from server_comms import *
+from marcos_client.local_config import ip_address, port, grad_board, fpga_clk_freq_MHz
+from marcos_client.server_comms import *
 
-from flomachine import *
-import flocompile as fc
+from marcos_client.flomachine import *
+import marcos_client.flocompile as fc
 
 import pdb
 st = pdb.set_trace
